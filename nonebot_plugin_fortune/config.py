@@ -5,7 +5,8 @@ from typing import Any, Dict, List, Union
 
 from nonebot import get_driver
 from nonebot.log import logger
-from pydantic import BaseModel, Extra, root_validator
+from nonebot.compat import model_validator
+from pydantic import BaseModel
 
 from .download import ResourceError, download_resource
 
@@ -40,11 +41,11 @@ FortuneThemesDict: Dict[str, List[str]] = {
 }
 
 
-class PluginConfig(BaseModel, extra=Extra.ignore):
+class PluginConfig(BaseModel, extra='ignore'):
     fortune_path: Path = Path(__file__).parent / "resource"
 
 
-class ThemesFlagConfig(BaseModel, extra=Extra.ignore):
+class ThemesFlagConfig(BaseModel, extra='ignore'):
     """
     Switches of themes only valid in random divination.
     Make sure NOT ALL FALSE!
@@ -73,7 +74,8 @@ class ThemesFlagConfig(BaseModel, extra=Extra.ignore):
     touhou_old_flag: bool = True
     warship_girls_r_flag: bool = True
 
-    @root_validator
+    @model_validator(mode="before")
+    @classmethod
     def check_all_disabled(cls, values) -> None:
         """Check whether all themes are DISABLED"""
         flag: bool = False
